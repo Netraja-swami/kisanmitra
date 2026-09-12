@@ -87,7 +87,7 @@ export async function classifyPlantDisease(
 
   const response =
     await fetch(
-      `http://localhost:8080/api/chat/image?userId=${userId || ''}`,
+      `https://kisanmitra-07c4.onrender.com/api/chat/image?userId=${userId || ''}`,
       {
         method: 'POST',
 

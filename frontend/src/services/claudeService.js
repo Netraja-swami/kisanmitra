@@ -190,7 +190,7 @@ export async function sendAdvisoryMessage(
   try {
 
     const response = await fetch(
-      'http://localhost:8080/api/chat/message',
+      'https://kisanmitra-07c4.onrender.com/api/chat/message',
       {
         method: 'POST',
 

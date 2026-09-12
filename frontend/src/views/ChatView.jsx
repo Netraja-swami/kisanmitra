@@ -118,7 +118,7 @@ export default function ChatView({ farmerContext, initialQuery = '', onClearPref
     try {
 
       const response = await fetch(
-        `http://localhost:8080/api/chat/history/${userId}`,
+        `https://kisanmitra-07c4.onrender.com/api/chat/history/${userId}`,
         {
           method: 'GET',
           headers: {
@@ -370,7 +370,7 @@ export default function ChatView({ farmerContext, initialQuery = '', onClearPref
       const lastMessage = history[history.length - 1];
 
       const backendResponse = await fetch(
-        'http://localhost:8080/api/chat/message',
+        'https://kisanmitra-07c4.onrender.com/api/chat/message',
         {
           method: 'POST',
           headers: {
@@ -469,7 +469,7 @@ export default function ChatView({ farmerContext, initialQuery = '', onClearPref
       );
 
       const imageResponse = await fetch(
-        'http://localhost:8080/api/chat/image',
+        'https://kisanmitra-07c4.onrender.com/api/chat/image',
         {
           method: 'POST',
           headers: {

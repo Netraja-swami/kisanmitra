@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const API_URL = 'http://localhost:8080';
+const API_URL = 'https://kisanmitra-07c4.onrender.com';
 
 const SESSION_KEY = 'kisanmitra_session_v1';
 const USER_KEY = 'kisanmitra_user';

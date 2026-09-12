@@ -175,7 +175,7 @@ export default function ProfileView({
 
         const response =
           await fetch(
-            `http://localhost:8080/api/profile/${userId}`,
+            `https://kisanmitra-07c4.onrender.com/api/profile/${userId}`,
             {
               method: 'GET',
 
@@ -377,7 +377,7 @@ export default function ProfileView({
 
         const response =
           await fetch(
-            `http://localhost:8080/api/profile/${userId}`,
+            `https://kisanmitra-07c4.onrender.com/api/profile/${userId}`,
             {
               method: 'PUT',
 

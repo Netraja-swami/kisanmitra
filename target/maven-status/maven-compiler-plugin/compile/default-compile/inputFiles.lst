@@ -1,0 +1,17 @@
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\BackendApplication.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\config\SecurityConfig.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\controller\AuthController.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\controller\ChatController.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\controller\TestController.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\dto\ChatRequest.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\dto\ChatResponse.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\dto\LoginRequest.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\dto\RegisterRequest.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\model\ChatMessage.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\model\User.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\repository\ChatRepository.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\repository\UserRepository.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\security\JwtAuthenticationFilter.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\security\JwtService.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\service\ChatService.java
+C:\Users\Asus\Desktop\Crop Adviser\src\main\java\com\kisanmitra\backend\service\GeminiService.java

@@ -55,6 +55,12 @@ export function useAuth() {
   const [authError, setAuthError] =
     useState('');
 
+  const [alreadyRegistered, setAlreadyRegistered] =
+    useState(false);
+
+  const clearAlreadyRegistered = () => {
+    setAlreadyRegistered(false);
+  };
 
   const [lockoutStatus] =
     useState({
@@ -127,6 +133,7 @@ export function useAuth() {
     setCurrentUser(sessionUser);
 
     setAuthError('');
+    setAlreadyRegistered(false);
   };
 
 
@@ -140,77 +147,144 @@ export function useAuth() {
   ) => {
 
     setAuthError('');
+    setAlreadyRegistered(false);
     setIsLoading(true);
 
+    const mobile =
+      String(identifier || '').trim();
 
+    if (!mobile || !password) {
+      setAuthError('Please enter both mobile number and password');
+      setIsLoading(false);
+      return false;
+    }
+
+    let response;
     try {
-
-      const mobile =
-        String(identifier).trim();
-
-
-      const response =
+      response =
         await fetch(
           `${API_URL}/api/auth/login`,
           {
             method: 'POST',
-
             headers: {
-              'Content-Type':
-                'application/json'
+              'Content-Type': 'application/json'
             },
-
             body: JSON.stringify({
               mobile: mobile,
               password: password
             })
           }
         );
+    } catch (networkError) {
+      console.error(
+        'Login network error:',
+        networkError
+      );
+      setAuthError('Unable to connect to the server. Please try again.');
+      setIsLoading(false);
+      return false;
+    }
 
+    try {
+      if (response.ok) {
+        let data;
+        try {
+          data = await response.json();
+        } catch {
+          data = null;
+        }
 
-      const data =
-        await response.json();
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          typeof data === 'string'
-            ? data
-            : 'Invalid mobile number or password'
-        );
+        if (data && data.token) {
+          createSession(
+            data,
+            data.token
+          );
+          return true;
+        } else {
+          setAuthError('Unable to connect to the server. Please try again.');
+          return false;
+        }
       }
 
+      // -----------------------------------------------------
+      // FAILED LOGIN HANDLING (HTTP 401, etc.)
+      // -----------------------------------------------------
+      let responseText = '';
+      try {
+        responseText = await response.text();
+      } catch {
+        responseText = '';
+      }
 
-      // Save complete session
-      createSession(
-        data,
-        data.token
-      );
+      const lowerText = responseText.toLowerCase();
 
+      // Check if backend message directly specifies password error
+      if (
+        (lowerText.includes('password') && !lowerText.includes('mobile')) ||
+        lowerText.includes('incorrect password') ||
+        lowerText.includes('wrong password')
+      ) {
+        setAuthError('Incorrect password. Please try again.');
+        return false;
+      }
 
-      return true;
+      // Check if backend message directly specifies unregistered user
+      if (
+        lowerText.includes('not found') ||
+        lowerText.includes('unregistered') ||
+        lowerText.includes('no account')
+      ) {
+        setAuthError('No account found with this mobile number. Please sign up first.');
+        return false;
+      }
 
+      // When response is 401 or "Invalid mobile number or password":
+      // Determine whether the mobile number exists in the backend
+      try {
+        const checkResponse =
+          await fetch(
+            `${API_URL}/api/auth/register`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ mobile: mobile })
+            }
+          );
+
+        let checkText = '';
+        try {
+          checkText = await checkResponse.text();
+        } catch {
+          checkText = '';
+        }
+
+        if (
+          checkResponse.status === 400 &&
+          checkText.includes('Mobile number already registered')
+        ) {
+          // Mobile number exists in the database -> wrong password
+          setAuthError('Incorrect password. Please try again.');
+        } else {
+          // Mobile number does not exist in the database
+          setAuthError('No account found with this mobile number. Please sign up first.');
+        }
+      } catch {
+        setAuthError('Incorrect password. Please try again.');
+      }
+
+      return false;
 
     } catch (error) {
-
       console.error(
         'Login error:',
         error
       );
-
-
-      setAuthError(
-        error.message ||
-        'Login failed'
-      );
-
-
+      setAuthError('Unable to connect to the server. Please try again.');
       return false;
 
-
     } finally {
-
       setIsLoading(false);
     }
   };
@@ -228,133 +302,139 @@ export function useAuth() {
   ) => {
 
     setAuthError('');
+    setAlreadyRegistered(false);
     setIsLoading(true);
 
-
     try {
-
-      // Check passwords
+      // Check passwords match
       if (
         password !==
         confirmPassword
       ) {
-
-        throw new Error(
-          'Passwords do not match'
-        );
+        const err = 'Passwords do not match';
+        setAuthError(err);
+        return { success: false, error: err };
       }
 
-
       const cleanName =
-        String(name).trim();
+        String(name || '').trim();
 
       const cleanMobile =
-        String(mobile).trim();
+        String(mobile || '').trim();
 
+      if (!cleanName || !cleanMobile || !password) {
+        const err = 'Please fill in all fields';
+        setAuthError(err);
+        return { success: false, error: err };
+      }
 
       // -----------------------------------------------------
       // REGISTER
       // -----------------------------------------------------
-
-      const registerResponse =
-        await fetch(
-          `${API_URL}/api/auth/register`,
-          {
-            method: 'POST',
-
-            headers: {
-              'Content-Type':
-                'application/json'
-            },
-
-            body: JSON.stringify({
-              name: cleanName,
-              mobile: cleanMobile,
-              password: password
-            })
-          }
+      let registerResponse;
+      try {
+        registerResponse =
+          await fetch(
+            `${API_URL}/api/auth/register`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                name: cleanName,
+                mobile: cleanMobile,
+                password: password
+              })
+            }
+          );
+      } catch (netErr) {
+        console.error(
+          'Registration network error:',
+          netErr
         );
-
-
-      const registerData =
-        await registerResponse.text();
-
-
-      if (!registerResponse.ok) {
-
-        throw new Error(
-          registerData ||
-          'Registration failed'
-        );
+        const err = 'Unable to connect to the server. Please try again.';
+        setAuthError(err);
+        return { success: false, error: err };
       }
 
+      let registerData = '';
+      try {
+        registerData = await registerResponse.text();
+      } catch {
+        registerData = '';
+      }
+
+      // Handle ALREADY REGISTERED (HTTP 400 with "Mobile number already registered")
+      if (
+        registerResponse.status === 400 &&
+        registerData.includes('Mobile number already registered')
+      ) {
+        setAlreadyRegistered(true);
+        return {
+          success: false,
+          alreadyRegistered: true,
+          error: 'User already registered. Please login to continue.'
+        };
+      }
+
+      if (!registerResponse.ok) {
+        const err = registerData || 'Registration failed';
+        setAuthError(err);
+        return {
+          success: false,
+          error: err
+        };
+      }
 
       // -----------------------------------------------------
       // AUTOMATIC LOGIN
       // -----------------------------------------------------
+      try {
+        const loginResponse =
+          await fetch(
+            `${API_URL}/api/auth/login`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                mobile: cleanMobile,
+                password: password
+              })
+            }
+          );
 
-      const loginResponse =
-        await fetch(
-          `${API_URL}/api/auth/login`,
-          {
-            method: 'POST',
+        if (loginResponse.ok) {
+          const loginData =
+            await loginResponse.json();
 
-            headers: {
-              'Content-Type':
-                'application/json'
-            },
+          createSession(
+            loginData,
+            loginData.token
+          );
 
-            body: JSON.stringify({
-              mobile: cleanMobile,
-              password: password
-            })
-          }
-        );
-
-
-      const loginData =
-        await loginResponse.json();
-
-
-      if (!loginResponse.ok) {
-
-        throw new Error(
-          typeof loginData === 'string'
-            ? loginData
-            : 'Registration successful, but automatic login failed'
-        );
+          return { success: true };
+        } else {
+          setAuthError('Registration successful. Please sign in.');
+          return { success: true, autoLoginFailed: true };
+        }
+      } catch {
+        setAuthError('Registration successful. Please sign in.');
+        return { success: true, autoLoginFailed: true };
       }
 
-
-      // Save session + user ID + JWT
-      createSession(
-        loginData,
-        loginData.token
-      );
-
-
-      return true;
-
-
     } catch (error) {
-
       console.error(
         'Registration error:',
         error
       );
-
-
-      setAuthError(
-        error.message ||
-        'Registration failed'
-      );
-
-
-      return false;
-
+      const err = error.message || 'Registration failed';
+      setAuthError(err);
+      return { success: false, error: err };
 
     } finally {
-
       setIsLoading(false);
     }
   };
@@ -457,6 +537,10 @@ export function useAuth() {
     authError,
 
     setAuthError,
+
+    alreadyRegistered,
+
+    clearAlreadyRegistered,
 
     lockoutStatus,
 

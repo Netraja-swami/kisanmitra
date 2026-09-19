@@ -17,6 +17,9 @@ export default function App() {
     isAuthenticated,
     isLoading: isAuthLoading,
     authError,
+    setAuthError,
+    alreadyRegistered,
+    clearAlreadyRegistered,
     lockoutStatus,
     signIn,
     signUp,
@@ -64,15 +67,16 @@ export default function App() {
       <AuthScreen
         onLogin={handleLogin}
         onDemoLogin={handleLogin}
-        onSignIn={(identifier, password) => {
-          signIn(identifier, password);
-          handleLogin({ mobile: identifier });
+        onSignIn={async (identifier, password) => {
+          return await signIn(identifier, password);
         }}
-        onSignUp={(name, mobile, password, confirmPassword) => {
-          signUp(name, mobile, password, confirmPassword);
-          handleLogin({ name, mobile });
+        onSignUp={async (name, mobile, password, confirmPassword) => {
+          return await signUp(name, mobile, password, confirmPassword);
         }}
         authError={authError}
+        alreadyRegistered={alreadyRegistered}
+        onClearAlreadyRegistered={clearAlreadyRegistered}
+        onClearError={() => setAuthError('')}
         lockoutStatus={lockoutStatus}
         isLoading={isAuthLoading}
         language={context.language}

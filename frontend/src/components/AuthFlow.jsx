@@ -15,12 +15,16 @@ export default function AuthFlow({
   onDemoLogin,
   onLogin,
   authError,
+  alreadyRegistered = false,
+  onClearAlreadyRegistered,
+  onClearError,
   lockoutStatus,
   isLoading,
   language = 'hinglish'
 }) {
   const { t, isEnglish } = useTranslation(language);
   const [activeTab, setActiveTab] = useState('signin'); // 'signin' | 'signup'
+  const [showAlreadyRegisteredModal, setShowAlreadyRegisteredModal] = useState(false);
 
   // Sign In fields
   const [loginIdentifier, setLoginIdentifier] = useState('');
@@ -34,7 +38,7 @@ export default function AuthFlow({
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [showRegPassword, setShowRegPassword] = useState(false);
 
-  // Demo Login behavior
+  // Demo Login behavior (only triggered by explicit demo button)
   const handleDemoClick = () => {
     try {
       localStorage.setItem('kisanmitra_user', JSON.stringify(MOCK_USER));
@@ -51,7 +55,7 @@ export default function AuthFlow({
     }
   };
 
-  // Mobile + Password login (Demo Mode: any number + any password logs in)
+  // Real Mobile + Password login
   const handleSignInSubmit = async (e) => {
     e.preventDefault();
 
@@ -67,27 +71,45 @@ export default function AuthFlow({
     }
   };
 
-  // Sign Up (Demo Mode: registers and logs in immediately)
-  const handleSignUpSubmit = (e) => {
+  // Real Sign Up
+  const handleSignUpSubmit = async (e) => {
     e.preventDefault();
-    const userToLogin = {
-      name: regName ? String(regName).trim() : 'Ramesh Kumar',
-      email: 'ramesh@gmail.com',
-      mobile: regMobile ? String(regMobile).trim() : '9876543210',
-      photo: null,
-      uid: 'demo-001'
-    };
-    try {
-      localStorage.setItem('kisanmitra_user', JSON.stringify(userToLogin));
-      if (!localStorage.getItem('kisanmitra_questions_count')) {
-        localStorage.setItem('kisanmitra_questions_count', '0');
-      }
-    } catch (err) {}
+
+    if (!regName.trim() || !regMobile.trim() || !regPassword) {
+      return;
+    }
 
     if (onSignUp) {
-      onSignUp(regName || 'Ramesh Kumar', regMobile || '9876543210', regPassword || 'demo123', regConfirmPassword || 'demo123');
-    } else if (onLogin) {
-      onLogin(userToLogin);
+      const result = await onSignUp(
+        regName.trim(),
+        regMobile.trim(),
+        regPassword,
+        regConfirmPassword
+      );
+      if (result && result.alreadyRegistered) {
+        setShowAlreadyRegisteredModal(true);
+      }
+    }
+  };
+
+  const handleSwitchToLoginFromModal = () => {
+    setShowAlreadyRegisteredModal(false);
+    if (onClearAlreadyRegistered) {
+      onClearAlreadyRegistered();
+    }
+    if (onClearError) {
+      onClearError();
+    }
+    if (regMobile.trim()) {
+      setLoginIdentifier(regMobile.trim());
+    }
+    setActiveTab('signin');
+  };
+
+  const handleCloseModal = () => {
+    setShowAlreadyRegisteredModal(false);
+    if (onClearAlreadyRegistered) {
+      onClearAlreadyRegistered();
     }
   };
 
@@ -113,7 +135,11 @@ export default function AuthFlow({
         <div className="grid grid-cols-2 border-b border-slate-200 bg-slate-50 p-1.5 gap-1.5">
           <button
             type="button"
-            onClick={() => setActiveTab('signin')}
+            onClick={() => {
+              setActiveTab('signin');
+              if (onClearError) onClearError();
+              if (onClearAlreadyRegistered) onClearAlreadyRegistered();
+            }}
             className={`min-h-[46px] rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
               activeTab === 'signin'
                 ? 'bg-emerald-800 text-white shadow-xs'
@@ -125,7 +151,11 @@ export default function AuthFlow({
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('signup')}
+            onClick={() => {
+              setActiveTab('signup');
+              if (onClearError) onClearError();
+              if (onClearAlreadyRegistered) onClearAlreadyRegistered();
+            }}
             className={`min-h-[46px] rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
               activeTab === 'signup'
                 ? 'bg-emerald-800 text-white shadow-xs'
@@ -151,7 +181,7 @@ export default function AuthFlow({
         )}
 
         {/* Auth Error Banner */}
-        {authError && !lockoutStatus?.locked && (
+        {authError && !lockoutStatus?.locked && !showAlreadyRegisteredModal && !alreadyRegistered && (
           <div className="m-4 mb-0 bg-amber-50 border border-amber-300 rounded-2xl p-3 text-xs text-amber-950 flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <span className="font-semibold leading-relaxed">{authError}</span>
@@ -336,6 +366,46 @@ export default function AuthFlow({
       <div className="w-full max-w-md mx-auto text-center text-emerald-200 text-[11px] py-1">
         {t('securityPledge')}
       </div>
+
+      {/* Already Registered Popup Modal */}
+      {(showAlreadyRegisteredModal || alreadyRegistered) && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 select-none">
+          <div className="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl border border-emerald-100 p-6 text-center space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
+              <AlertTriangle className="w-7 h-7" />
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-slate-900 leading-snug">
+                User already registered. Please login to continue.
+              </h3>
+              {regMobile && (
+                <p className="text-xs text-slate-500">
+                  Mobile: <span className="font-semibold text-slate-700">{regMobile}</span>
+                </p>
+              )}
+            </div>
+
+            <div className="pt-2 space-y-2">
+              <button
+                type="button"
+                onClick={handleSwitchToLoginFromModal}
+                className="w-full min-h-[46px] rounded-xl bg-emerald-800 hover:bg-emerald-900 font-bold text-white shadow-md transition-all text-sm flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Lock className="w-4 h-4" />
+                <span>Login</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                className="w-full min-h-[38px] rounded-xl text-slate-600 hover:text-slate-900 font-medium text-xs transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

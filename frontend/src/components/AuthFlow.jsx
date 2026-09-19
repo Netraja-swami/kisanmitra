@@ -52,23 +52,18 @@ export default function AuthFlow({
   };
 
   // Mobile + Password login (Demo Mode: any number + any password logs in)
-  const handleSignInSubmit = (e) => {
+  const handleSignInSubmit = async (e) => {
     e.preventDefault();
-    const userToLogin = {
-      ...MOCK_USER,
-      mobile: loginIdentifier ? String(loginIdentifier).trim() : '9876543210'
-    };
-    try {
-      localStorage.setItem('kisanmitra_user', JSON.stringify(userToLogin));
-      if (!localStorage.getItem('kisanmitra_questions_count')) {
-        localStorage.setItem('kisanmitra_questions_count', '0');
-      }
-    } catch (err) {}
+
+    if (!loginIdentifier.trim() || !loginPassword) {
+      return;
+    }
 
     if (onSignIn) {
-      onSignIn(loginIdentifier || '9876543210', loginPassword || 'demo123');
-    } else if (onLogin) {
-      onLogin(userToLogin);
+      await onSignIn(
+        loginIdentifier.trim(),
+        loginPassword
+      );
     }
   };
 

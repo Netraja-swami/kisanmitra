@@ -27,15 +27,15 @@ public class ProfileController {
         }
 
         return ResponseEntity.ok(
-                java.util.Map.of(
-                        "id", user.getId(),
-                        "name", user.getName(),
-                        "email", user.getEmail(),
-                        "mobile", user.getMobile(),
-                        "state", user.getState(),
-                        "soil", user.getSoil(),
-                        "season", user.getSeason()
-                )
+                new java.util.HashMap<String, Object>() {{
+                    put("id", user.getId());
+                    put("name", user.getName());
+                    put("email", user.getEmail());
+                    put("mobile", user.getMobile());
+                    put("state", user.getState());
+                    put("soil", user.getSoil());
+                    put("season", user.getSeason());
+                }}
         );
     }
 

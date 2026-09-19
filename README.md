@@ -74,6 +74,32 @@ The system provides a preliminary assessment of possible plant problems along wi
 
 ---
 
+## 📂 Project Structure
+
+kisanmitra/
+│
+├── src/
+│   └── main/
+│       ├── java/
+│       │   └── com/
+│       │       └── kisanmitra/
+│       │           └── backend/
+│       │
+│       └── resources/
+│
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── ...
+│
+├── Dockerfile
+├── pom.xml
+├── mvnw
+├── mvnw.cmd
+├── .gitignore
+└── README.md
+
 ## 🏗️ System Architecture
 
 ```text
@@ -130,28 +156,4 @@ Response displayed to farmer
        ↓
 Chat saved in PostgreSQL
 
-##Project File Structure
 
-kisanmitra/
-│
-├── src/
-│   └── main/
-│       ├── java/
-│       │   └── com/
-│       │       └── kisanmitra/
-│       │           └── backend/
-│       │
-│       └── resources/
-│
-├── frontend/
-│   ├── src/
-│   ├── public/
-│   ├── package.json
-│   └── ...
-│
-├── Dockerfile
-├── pom.xml
-├── mvnw
-├── mvnw.cmd
-├── .gitignore
-└── README.md

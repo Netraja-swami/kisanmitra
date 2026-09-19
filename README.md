@@ -72,33 +72,7 @@ The system provides a preliminary assessment of possible plant problems along wi
 
 > ⚠️ **Note:** Image analysis is intended as preliminary guidance and should not replace professional agricultural advice.
 
----
-
-## 📂 Project Structure
-
-kisanmitra/
-│
-├── src/
-│   └── main/
-│       ├── java/
-│       │   └── com/
-│       │       └── kisanmitra/
-│       │           └── backend/
-│       │
-│       └── resources/
-│
-├── frontend/
-│   ├── src/
-│   ├── public/
-│   ├── package.json
-│   └── ...
-│
-├── Dockerfile
-├── pom.xml
-├── mvnw
-├── mvnw.cmd
-├── .gitignore
-└── README.md
+--
 
 ## 🏗️ System Architecture
 

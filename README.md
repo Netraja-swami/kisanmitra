@@ -11,7 +11,7 @@ The platform allows farmers to ask agriculture-related questions, receive AI-gen
 ## 🚀 Live Project
 
 ### 🌐 Live Demo
-**Frontend:** Coming Soon
+https://kisanmitra-puce.vercel.app/
 
 ### ⚙️ Backend API
 🔗 https://kisanmitra-07c4.onrender.com

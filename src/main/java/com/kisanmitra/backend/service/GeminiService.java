@@ -103,7 +103,7 @@ public class GeminiService {
 
         requestJson.put(
                 "model",
-                "gemini-3.7-flash"
+                "gemini-3.8-flash"
         );
 
         requestJson.put(
